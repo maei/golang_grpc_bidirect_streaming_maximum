@@ -1,11 +1,13 @@
 package server
 
 import (
+	"fmt"
 	"github.com/maei/golang_grpc_bidirect_streaming_maximum/grpc_server/src/domain/maximumpb"
 	"github.com/maei/shared_utils_go/logger"
 	"google.golang.org/grpc"
 	"io"
 	"net"
+	"time"
 )
 
 type server struct{}
@@ -52,6 +54,8 @@ func (*server) GetMaximum(stream maximumpb.MaximumService_GetMaximumServer) erro
 					logger.Error("gRPC-Server: Error while sending Data to gRPC-Client", sendErr)
 					break
 				}
+				time.Sleep(2 * time.Second)
+
 			} else {
 				logger.Info("gRPC-Server: Received all jobs, closing channel")
 				done <- true
@@ -61,7 +65,7 @@ func (*server) GetMaximum(stream maximumpb.MaximumService_GetMaximumServer) erro
 	}(maxNumber)
 
 	<-done
-	logger.Info("gRPC-Server: Finishing gRPC-Client Request")
+	logger.Info(fmt.Sprintf("gRPC-Server: Finishing gRPC-Client Request with result: %v", maxNumber))
 	return nil
 }
 
